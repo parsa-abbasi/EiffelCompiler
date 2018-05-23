@@ -6,4 +6,13 @@ Eiffel is an object-oriented programming language designed by Bertrand Meyer (an
 
 Official Website : [www.Eiffel.org](https://www.eiffel.org)
 
+## Authors
+* **Parsa Abasi** [[Github profile]](https://github.com/parsapersian96)
+* **Hamed Faraji** [[Github profile]](https://github.com/hamed-faraji)
+
+See also the list of [contributors](https://github.com/parsapersian96/EiffelCompiler/contributors) who participated in this project.
+
+## Course
 Compiler Design - University of Guilan
+
+Instructor: **Abdollah Esmaeilpour** [[Linkedin page]](https://ir.linkedin.com/in/abdollah-e)
