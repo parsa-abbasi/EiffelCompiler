@@ -1,0 +1,59 @@
+class
+    PERSON
+feature
+    age: INTEGER
+    set_age ( new_age: INTEGER )
+        do
+            age := new_age
+        end
+end
+
+-868
++862542
+2450
+0
+0x34A
+2
+0.98
+.985
+56.0
++0.95
+-10.95657875 0
+-0.85
+-0.00
++0
+-0
+
+"parsa"
+" its an example of string type    "
+" its %" another %"%" string"
+" this string show that "  quotation "  marks can't be inner the string "
+" this string have special characters such as . , 8 # @ etc. except %" "
+
+parsa
+--parsa
+--  this is an example of comment and it can have any characters such as . , " ^ # @
+
+ide_ntifer___kasdash
+
+in_sdads : INTEGER
+in_dsa := kdsa
+
+and
+INTEGER name := +5
+=
+/=
+\\
+//
+^
+..
+|..|
+or
+and then
+implies
+'
+"
+{ }
+[ ]
+( )
+|
