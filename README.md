@@ -7,50 +7,51 @@ Eiffel is an object-oriented programming language designed by Bertrand Meyer (an
 ## Phases
 ### Phase1 - Lexical analyzer
 Following tokens must be recognized :
-** 1. Five keywords **
+
+**1. Five keywords**
 ```
 e.g. "feature" | "class" | "do" | "end" | "INTEGER" | "STRING" | "REAL"
 some other examples :
 "alias" | "assign" | "once" | "inherit" | "redefine" | "if" | "create" | "else" | "require" | "ensure" | "local" | "BOOLEAN" | "DOUBLE" | ...
 ```
-** 2. Identifier **
+**2. Identifier**
 ```
 Identifier is a sequence of one or more alphanumeric characters of which the first is letter.
 The words of an identifier can be separated by "_" in Eiffel. 
 For example its_an_identifier
 ```
-** 3. Integer literal **
+**3. Integer literal**
 ```
 e.g. -868, +862542, 2450, 0, 0x34A, +0, ...
 ```
-** 4. Floating point literal **
+**4. Floating point literal**
 ```
 e.g. 0.98, .985, 56.0, +0.95, -10.95657875, -0.85, -0.00, ...
 ```
-** 5. String literal **
+**5. String literal**
 ```
 String started and finished with quotation mark in Eiffel.
 Note: We can have quotation mark in our string with [%"] (Merely in Eiffel)
 e.g. "Hello"
 ```
-** 6. White Space **
+**6. White Space**
 ```
 New line and white space
 e.g "	left tab"
 ```
-** 7. Delimiters (such as “(“, “)”, “[“, …) **
+**7. Delimiters (such as “(“, “)”, “[“, …)**
 ```
 e.g. "(" , ")" , "{" , "}" , "[" , "]" , "|" , "'" , [\"]
 ```
-** 8. Operators **
+**8. Operators**
 ```
-* Logic operators - e.g. "and" , "or" , "xor" , "not"
-* Semistrict logic operators - e.g. "and then" , "or else" , "implies"
-* Comparison operators - e.g. "<" , ">" , "<=" , ">="
-* Mathematical operators - e.g. "+" , "-" , "*" , "/"
-* Some other stuff - e.g. ":=" , "=" , "/=" , "//" , "\\" , "^" , ".." , "|..|" 
+*  Logic operators - e.g. "and" , "or" , "xor" , "not"
+*  Semistrict logic operators - e.g. "and then" , "or else" , "implies"
+*  Comparison operators - e.g. "<" , ">" , "<=" , ">="
+*  Mathematical operators - e.g. "+" , "-" , "*" , "/"
+*  Some other stuff - e.g. ":=" , "=" , "/=" , "//" , "\\" , "^" , ".." , "|..|" 
 ```
-** 9. Comment **
+**9. Comment**
 ```
 Comments started with "--"
 e.g. -- this is a comment
