@@ -78,7 +78,22 @@ e.g. -- this is a comment
 ```
 The lexical analyzer must be able to get an input file that is to be scanned and all recognized tokens must be printed in console along with the line number and column number in which the token is detected.
 ### Phase2 - Syntactic analyzer
-/*Coming soon!*/
+
+The syntactic analyzer must be able to get an input file for parsing. The input file contains a whole program written in the selected language with following structures:
+* A subprogram (function)
+* Two integer variable declarations (X and Y)
+* A loop (for, while, do, etc.)
+* A conditional structure (if, case, etc.)
+
+The logic of program is as follows:
+
+The subprogram prints “Hello World” for X times (X contains an arbitrary integer literal) using the loop structure if the value of an integer is greater than Y (Y contains an arbitrary integer literal), else prints “Bye”.
+
+Notes: at this phase, your program must only parse the input code NOT generate an executable file. It must report appropriate error messages when the input program does not follows the grammar of the selected language (regarding the specified scope of the grammar).
+
+Connection to your scanner :
+A parser must cooperate with a scanner to parse an input file. We use our scanner created in the previous phase.
+
 ## Authors
 * **Parsa Abasi** [[Github profile]](https://github.com/parsapersian96)
 * **Hamed Faraji** [[Github profile]](https://github.com/hamed-faraji)
