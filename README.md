@@ -94,6 +94,12 @@ Notes: at this phase, your program must only parse the input code NOT generate a
 Connection to your scanner :
 A parser must cooperate with a scanner to parse an input file. We use our scanner created in the previous phase.
 
+## Tools
+
+* JFlex - The Fast Scanner Generator for Java
+* Cup - Construction of Useful Parsers (An LALR parser generator for Java)
+* Eclipse IDE
+
 ## Authors
 * **Parsa Abasi** [[Github profile]](https://github.com/parsapersian96)
 * **Hamed Faraji** [[Github profile]](https://github.com/hamed-faraji)
@@ -109,3 +115,7 @@ Instructor: **Abdollah Esmaeilpour** [[Linkedin page]](https://ir.linkedin.com/i
 Official Website of Eiffel : [www.Eiffel.org](https://www.eiffel.org)
 
 Eiffel Syntax Guide : [www.Eiffel-Guide.com](http://eiffel-guide.com)
+
+JFlex Official Website : [www.JFlex.de](http://jflex.de)
+
+Cup Website : [www2.cs.tum.edu/projects/cup/](http://www2.cs.tum.edu/projects/cup/)
