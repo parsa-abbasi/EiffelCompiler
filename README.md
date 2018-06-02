@@ -107,7 +107,7 @@ A parser must cooperate with a scanner to parse an input file. We use our scanne
 See also the list of [contributors](https://github.com/parsapersian96/EiffelCompiler/contributors) who participated in this project.
 
 ## Course
-Compiler Design - University of Guilan [www.guilan.ac.ir](guilan.ac.ir)
+Compiler Design - University of Guilan [[www.guilan.ac.ir]](guilan.ac.ir)
 
 Instructor: **Abdollah Esmaeilpour** [[Linkedin page]](https://ir.linkedin.com/in/abdollah-e)
 
