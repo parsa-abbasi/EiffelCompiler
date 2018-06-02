@@ -1,0 +1,31 @@
+class
+    APPLICATION
+
+create
+    make
+
+feature -- Initialization
+    make
+        -- Run application.
+        local
+            i : INTEGER
+            x : INTEGER
+            y : INTEGER
+        do
+            x := 5
+            y := 7
+            from
+                i := 0
+            until
+                i >= x
+            loop
+                if x<y
+                then
+                    print ("Hello World!%N")
+                else
+                    print ("Bye%N")
+                end
+                i := i + 1
+            end
+        end
+end
