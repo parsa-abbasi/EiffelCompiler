@@ -17,6 +17,7 @@ some other examples :
 **2. Identifier**
 
 Identifier is a sequence of one or more alphanumeric characters of which the first is letter.
+
 The words of an identifier can be separated by "_" in Eiffel.
 ``` 
 For example its_an_identifier
@@ -32,6 +33,7 @@ e.g. 0.98, .985, 56.0, +0.95, -10.95657875, -0.85, -0.00, ...
 **5. String literal**
 
 String started and finished with quotation mark in Eiffel.
+
 Note: We can have quotation mark in our string with [%"] (Merely in Eiffel)
 ```
 e.g. "Hello"
@@ -47,12 +49,26 @@ e.g "	left tab"
 e.g. "(" , ")" , "{" , "}" , "[" , "]" , "|" , "'" , [\"]
 ```
 **8. Operators**
+
+* Logic operators
 ```
-*  Logic operators - e.g. "and" , "or" , "xor" , "not"
-*  Semistrict logic operators - e.g. "and then" , "or else" , "implies"
-*  Comparison operators - e.g. "<" , ">" , "<=" , ">="
-*  Mathematical operators - e.g. "+" , "-" , "*" , "/"
-*  Some other stuff - e.g. ":=" , "=" , "/=" , "//" , "\\" , "^" , ".." , "|..|" 
+e.g. "and" , "or" , "xor" , "not"
+```
+* Semistrict logic operators
+```
+ e.g. "and then" , "or else" , "implies"
+ ```
+* Comparison operators 
+```
+e.g. "<" , ">" , "<=" , ">="
+```
+* Mathematical operators
+```
+e.g. "+" , "-" , "*" , "/"
+```
+* Some other stuff
+```
+e.g. ":=" , "=" , "/=" , "//" , "\\" , "^" , ".." , "|..|" 
 ```
 **9. Comment**
 
