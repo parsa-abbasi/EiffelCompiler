@@ -101,7 +101,7 @@ A parser must cooperate with a scanner to parse an input file. We use our scanne
 * Eclipse IDE
 
 ## Authors
-* **Parsa Abasi** [[Github profile]](https://github.com/parsapersian96)
+* **Parsa Abasi** [[Github profile]](https://github.com/parsa-abbasi)
 * **Hamed Faraji** [[Github profile]](https://github.com/hamed-faraji)
 
 See also the list of [contributors](https://github.com/parsapersian96/EiffelCompiler/contributors) who participated in this project.
