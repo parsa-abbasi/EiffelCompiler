@@ -1,0 +1,170 @@
+/*
+   Simple +/-/* expression language;
+   parser evaluates constant expressions on the fly
+*/
+
+package cup.example;
+
+import java_cup.runtime.*;
+import cup.example.Lexer;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+
+
+parser code  {:
+	protected Lexer lexer;
+	public void report_error(String message) {
+
+		lexer.emit_error(message);
+  }
+
+  public void report_fatal_error(String message) {
+    report_error(message);
+    throw new RuntimeException("Fatal Syntax Error");
+  }
+:};
+
+/* define how to connect to the scanner! */
+init with {:
+  ComplexSymbolFactory f = new ComplexSymbolFactory();
+  symbolFactory = f;
+  File file = new File("input.txt");
+  FileInputStream fis = null;
+  try {
+    fis = new FileInputStream(file);
+  } catch (IOException e) {
+    e.printStackTrace();
+  }
+  lexer = new Lexer(f,fis);
+:};
+scan with {: return lexer.next_token(); :};
+
+/* Terminals (tokens returned by the scanner). */
+terminal			CLASS, CREATE, FEATURE, LOCAL;
+terminal			PLUS, MINUS, DIV, MULT;
+terminal			LPAREN, RPAREN;
+terminal			INTEGER, REAL, STRING;
+terminal			COLON, COLEQ;
+terminal			LT, GT, LTEQ, GTEQ;
+terminal			IF, THEN, ELSE;
+terminal			DO, END;
+terminal			FROM, UNTIL, LOOP;
+terminal 			PRINT;
+terminal String		IDENTIFIER;
+terminal String		STRING_LITERAL;        // our scanner provides numbers as integers
+terminal Number		INTEGER_LITERAL, REAL_LITERAL;
+
+/* Non terminals */
+non terminal        expr_list;
+non terminal String print_function;
+non terminal 		condition, if_condition, if_else_condition;
+non terminal 		statement;
+non terminal 		code_section, code_section_in;
+non terminal 		comparison_symbol;
+non terminal 		literal, integer_literal, floating_literal, string_literal;
+non terminal		class_section, create_section;
+non terminal		feature_section, top_section, bottom_section;
+non terminal		function_section, local_section;
+non terminal		variables_declaration, variable_declaration;
+non terminal		data_type;
+non terminal		variables_initialization, variable_initialization;
+non terminal		loop_section;
+non terminal		computation;
+non terminal		operand;
+
+
+precedence left PLUS, MINUS;
+precedence left MULT, DIV;
+
+/* The grammar rules */
+expr_list ::= class_section create_section feature_section
+            ;
+
+print_function	::=	PRINT LPAREN STRING_LITERAL:e RPAREN	 {: System.out.println("Print function -> " + e); :}
+			;
+if_condition	::= IF statement THEN code_section END
+			|	IF statement THEN END
+			;
+if_else_condition	::= IF statement THEN code_section ELSE code_section END
+			|	IF statement THEN ELSE END
+			|	IF statement THEN error {: report_error("condition error"); :}
+			;
+condition		::= if_condition	 {: System.out.println("if condition scope"); :}
+			|	if_else_condition {: System.out.println("if else condition scope"); :}
+			;
+statement		::= IDENTIFIER comparison_symbol IDENTIFIER
+			|	IDENTIFIER comparison_symbol literal
+			|	literal comparison_symbol IDENTIFIER
+			|	literal comparison_symbol literal
+			;
+comparison_symbol	::= GT | GTEQ | LT | LTEQ
+			;
+integer_literal	::= INTEGER_LITERAL:e	{: RESULT=e; :}
+			;
+floating_literal	::= REAL_LITERAL:e	{: RESULT=e; :}
+			;
+string_literal	::= STRING_LITERAL:e	{: RESULT=e; :}
+			;
+literal			::= integer_literal:i	{: RESULT=i ; :}
+			|	floating_literal:f		{: RESULT=f ; :}
+			|	string_literal:s		{: RESULT=s ; :}
+			;
+class_section	::= CLASS IDENTIFIER:e	{: System.out.println("Class name = " + e); :}
+			|	CLASS error {: report_error("class section error"); :}
+			;
+create_section	::= CREATE IDENTIFIER:e	{: System.out.println("Function name = " + e); :}
+			|	CREATE error {: report_error("create section error"); :}
+			;
+feature_section	::=	FEATURE top_section bottom_section END
+			|	FEATURE error {: report_error("feature section error"); :}
+			;
+top_section		::= IDENTIFIER
+			|	variables_declaration IDENTIFIER
+			;
+data_type		::= INTEGER
+			|	STRING
+			|	REAL
+			;
+bottom_section	::= local_section function_section
+			|	function_section
+			;
+local_section	::= LOCAL variables_declaration
+			|	LOCAL error {: report_error("local section error"); :}
+			;
+variables_declaration	::= variable_declaration
+			|	variables_declaration variable_declaration
+			;
+variable_declaration	::= IDENTIFIER:i COLON data_type {: System.out.println("Variable declaration -> " + i); :}
+			;
+function_section	::= DO code_section END	 {: System.out.println("Function scope"); :}
+			|		DO error {: report_error("function section error"); :}
+			;
+loop_section	::= FROM variables_initialization UNTIL statement LOOP code_section END	 {: System.out.println("loop scope"); :}
+			|		FROM variables_initialization UNTIL statement LOOP				END	 {: System.out.println("loop scope"); :}
+			|		FROM error {: report_error("loop section error"); :}
+			;
+variables_initialization	::= variable_initialization
+			|	variables_initialization variable_initialization
+			;
+variable_initialization	::= IDENTIFIER:i COLEQ computation {: System.out.println("Variable initialization -> " + i); :}
+			|	IDENTIFIER error  {: report_error("variable initialization error"); :}
+			;
+computation		::=	operand:op1 PLUS operand:op2	{: System.out.println("Computation -> " + op1 + " + " + op2); :}
+			|	operand:op1 MINUS operand:op2		{: System.out.println("Computation -> " + op1 + " - " + op2); :}
+			|	operand:op1 DIV operand:op2			{: System.out.println("Computation -> " + op1 + " / " + op2); :}
+			|	operand:op1 MULT operand:op2		{: System.out.println("Computation -> " + op1 + " * " + op2); :}
+			|	MINUS operand:op					{: System.out.println("Computation -> " + op); :}
+			| 	operand:op							{: System.out.println("Computation -> " + op); :}
+			;
+operand			::= literal:l		{: System.out.println("Operand -> " + l); RESULT=l; :}
+			 | IDENTIFIER:e			{: System.out.println("Operand -> " + e); RESULT=e; :}
+			;
+code_section	::= code_section_in
+			| code_section_in code_section
+			;
+code_section_in	::= condition
+			| print_function
+			| variable_initialization
+			| loop_section
+			;

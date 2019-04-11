@@ -4,23 +4,22 @@ class
 create
     make
 
-feature -- Initialization
+feature
     make
-        -- Run application.
         local
             i : INTEGER
             x : INTEGER
             y : INTEGER
         do
             x := 5
-            y := 7
+            y :=
             from
                 i := 0
             until
                 i >= x
             loop
                 if x<y
-                then
+				then
                     print ("Hello World!%N")
                 else
                     print ("Bye%N")

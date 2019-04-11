@@ -1,0 +1,426 @@
+/*
+	Compiler - Phase 3
+	University of Guilan
+	Parsa Abasi - Hamed Faraji - Ali Sadeghi
+*/
+
+package cup.example;
+
+import java_cup.runtime.*;
+import cup.example.Lexer;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+
+action code {:
+	java.util.ArrayList<VariableTypeChecker> varSymTable = new java.util.ArrayList<VariableTypeChecker>();
+	java.util.ArrayList<ArgumentTypeChecker> funcSymTable = new java.util.ArrayList<ArgumentTypeChecker>();
+	java.util.ArrayList<Argument> tmpArg = new java.util.ArrayList<Argument>();
+
+	public boolean variableExist(String name){
+		for(int i=0; i<varSymTable.size(); i++){
+			if(varSymTable.get(i).getName().equals(name)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public String getVariableType(String name){
+		for(int i=0; i<varSymTable.size(); i++){
+			if(varSymTable.get(i).getName().equals(name)){
+				return varSymTable.get(i).getType();
+			}
+		}
+		return "NotFound";
+	}
+
+	public boolean functionExist(String name){
+		for(int i=0; i<funcSymTable.size(); i++){
+			if(funcSymTable.get(i).getName().equals(name)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public int argCounter = 0;
+	public void resetArgCounter(){
+		argCounter = 0;
+	}
+	public int currentFunction = 0;
+	public void setCurrentFunction(String name){
+		for(int i=0; i<funcSymTable.size(); i++){
+			if(funcSymTable.get(i).getName().equals(name)){
+				currentFunction = i;
+			}
+		}
+	}
+:}
+
+parser code  {:
+	protected Lexer lexer;
+	public void report_error(String message) {
+
+		lexer.emit_error(message);
+  }
+
+  public void report_fatal_error(String message) {
+    report_error(message);
+    throw new RuntimeException("Fatal Syntax Error");
+  }
+:};
+
+/* define how to connect to the scanner! */
+init with {:
+  ComplexSymbolFactory f = new ComplexSymbolFactory();
+  symbolFactory = f;
+  File file = new File("input.txt");
+  FileInputStream fis = null;
+  try {
+    fis = new FileInputStream(file);
+  } catch (IOException e) {
+    e.printStackTrace();
+  }
+  lexer = new Lexer(f,fis);
+:};
+scan with {: return lexer.next_token(); :};
+
+/* Terminals (tokens returned by the scanner). */
+terminal			CLASS, CREATE, FEATURE, LOCAL;
+terminal			PLUS, MINUS, DIV, MULT;
+terminal			LPAREN, RPAREN;
+terminal			INTEGER, REAL, STRING;
+terminal			COLON, COLEQ, SEMICOLON, COMMA;
+terminal			LT, GT, LTEQ, GTEQ;
+terminal			IF, THEN, ELSE;
+terminal			DO, END;
+terminal			FROM, UNTIL, LOOP;
+terminal 			PRINT;
+terminal String		IDENTIFIER;
+terminal String		STRING_LITERAL;        // our scanner provides numbers as integers
+terminal Integer	INTEGER_LITERAL;
+terminal Float		REAL_LITERAL;
+
+/* Non terminals */
+non terminal        	expr_list;
+non terminal	String	print_function;
+non terminal 			condition, if_condition, if_else_condition;
+non terminal	 		statement;
+non terminal 			code_section, code_section_in;
+non terminal 			comparison_symbol;
+non terminal 			literal;
+non terminal	Integer	integer_literal;
+non terminal	Float	floating_literal;
+non terminal	String	string_literal;
+non terminal			class_section, create_section;
+non terminal			feature_section;
+non terminal			functions_section, function_section,function_section_do, local_section, function_header;
+non terminal			variables_declaration, variable_declaration;
+non terminal			data_type;
+non terminal			variables_initialization, variable_initialization;
+non terminal			loop_section;
+non terminal			computation;
+non terminal			operand;
+non terminal			argument_section;
+non terminal			function_call, function_call_arguments, arg_declaration;
+
+precedence left PLUS, MINUS;
+precedence left MULT, DIV;
+
+/* The grammar rules */
+expr_list ::= class_section create_section feature_section
+            ;
+
+print_function	::=	PRINT LPAREN STRING_LITERAL:e RPAREN	 {: System.out.println("Print function -> " + e); :}
+			;
+if_condition	::= IF statement THEN code_section END
+			|	IF statement THEN END
+			;
+if_else_condition	::= IF statement THEN code_section ELSE code_section END
+			|	IF statement THEN ELSE END
+			|	IF statement THEN error {: report_error("condition error"); :}
+			;
+condition		::= if_condition
+			|	if_else_condition
+			;
+statement		::= IDENTIFIER comparison_symbol IDENTIFIER
+			|	IDENTIFIER comparison_symbol literal
+			|	literal comparison_symbol IDENTIFIER
+			|	literal comparison_symbol literal
+			;
+comparison_symbol	::= GT | GTEQ | LT | LTEQ
+			;
+integer_literal	::= INTEGER_LITERAL:e	{: RESULT=e; :}
+			;
+floating_literal	::= REAL_LITERAL:e	{: RESULT=e; :}
+			;
+string_literal	::= STRING_LITERAL:e	{: RESULT=e; :}
+			;
+literal			::= integer_literal:i	{: RESULT=i ; :}
+			|	floating_literal:f		{: RESULT=f ; :}
+			|	string_literal:s		{: RESULT=s ; :}
+			;
+class_section	::= CLASS IDENTIFIER:e	{: System.out.println("Class name = " + e); :}
+			|	CLASS error {: report_error("class section error"); :}
+			;
+create_section	::= CREATE IDENTIFIER:e	{: System.out.println("Function name = " + e); :}
+			|	CREATE error {: report_error("create section error"); :}
+			;
+feature_section	::=	FEATURE functions_section END
+			|	FEATURE variables_declaration functions_section END
+			|	FEATURE error {: report_error("feature section error"); :}
+			;
+data_type		::= INTEGER		{: RESULT = "INTEGER"; :}
+			|	STRING			{: RESULT = "STRING"; :}
+			|	REAL			{: RESULT = "REAL"; :}
+			;
+functions_section	::=	function_section
+			|			functions_section function_section
+			;
+function_section	::= function_header local_section function_section_do
+			|	function_section_do
+			;
+function_header		::= IDENTIFIER:i	{:
+											if(!functionExist(i)){
+												funcSymTable.add(new ArgumentTypeChecker(i));
+											}
+											else {
+												System.out.println("A function already exist with this name!");
+											}
+										:}
+			|			IDENTIFIER:i LPAREN argument_section RPAREN	{:
+																		if(!functionExist(i)){
+																			funcSymTable.add(new ArgumentTypeChecker(i));
+																			for(int c=0; c<tmpArg.size(); c++){
+																				funcSymTable.get(funcSymTable.size()-1).addArgument(tmpArg.get(c).getName() , tmpArg.get(c).getType());
+																			}
+																		}
+																		else {
+																			System.out.println("A function already exist with this name!");
+																		}
+																	:}
+			;
+argument_section	::=	arg_declaration
+			|			arg_declaration SEMICOLON argument_section
+			;
+arg_declaration		::= IDENTIFIER:i COLON data_type:d	{:
+															tmpArg.add(new Argument(i, d.toString()));
+															varSymTable.add(new VariableTypeChecker(i, d.toString()));
+															System.out.println("An argument found : " + i + " with type " + d.toString());
+														:}
+			;
+function_section_do	::= DO code_section END
+			|		DO error {: report_error("function section do error"); :}
+			;
+function_call		::=	IDENTIFIER:i LPAREN function_call_arguments RPAREN	{:
+																				if(!functionExist(i)){
+																					System.out.println("The function " + i + " wasn't decleared");
+																				}
+																				else {
+																					setCurrentFunction(i);
+																					resetArgCounter();
+																				}
+																			:}
+			;
+function_call_arguments	::=	IDENTIFIER:i	{:
+												if(argCounter>=funcSymTable.get(currentFunction).getArgSize()) {
+													System.out.println("Function call arguments number is greater than expected number");
+												}
+												else {
+													String expectedType = funcSymTable.get(currentFunction).getAnArgumentType(argCounter);
+													String identifierType = getVariableType(i);
+													if (identifierType.equals("NotFound")){
+														System.out.println("This identifier was not decleared yet");
+													}
+													else {
+														if(expectedType.equals(identifierType)) {
+															System.out.println("Argument type is okay");
+														}
+														else {
+															System.out.println("function call argument was not that expected");
+															System.out.println("argument " + i + " type is " + identifierType);
+															System.out.println("expected type is " + expectedType);
+														}
+													}
+													argCounter++;
+												}
+											:}
+			|	function_call_arguments COMMA IDENTIFIER:i	{:
+																if(argCounter>=funcSymTable.get(currentFunction).getArgSize()) {
+																	System.out.println("Function call arguments number is greater than expected number");
+																}
+																else {
+																	String expectedType = funcSymTable.get(currentFunction).getAnArgumentType(argCounter);
+																	String identifierType = getVariableType(i);
+																	if (identifierType.equals("NotFound")){
+																		System.out.println("This identifier was not decleared yet");
+																	}
+																	else {
+																		if(expectedType.equals(identifierType)) {
+																			System.out.println("Argument type is okay");
+																		}
+																		else {
+																			System.out.println("function call argument was not that expected");
+																			System.out.println("argument " + i + " type is " + identifierType);
+																			System.out.println("expected type is " + expectedType);
+																		}
+																	}
+																	argCounter++;
+																}
+															:}
+			|	literal:l	{:
+								if(argCounter>=funcSymTable.get(currentFunction).getArgSize()) {
+									System.out.println("Function call arguments number is greater than expected number");
+								}
+								else {
+									String expectedType = funcSymTable.get(currentFunction).getAnArgumentType(argCounter);
+									String identifierType = l.getClass().getTypeName().substring(10).toUpperCase();
+									if(expectedType.equals(identifierType)) {
+										System.out.println("Argument type is okay");
+									}
+									else {
+										System.out.println("function call argument was not that expected");
+										System.out.println("argument " + l + " type is " + identifierType);
+										System.out.println("expected type is " + expectedType);
+									}
+									argCounter++;
+								}
+							:}
+			|	function_call_arguments COMMA literal:l	{:
+															if(argCounter>=funcSymTable.get(currentFunction).getArgSize()) {
+																System.out.println("Function call arguments number is greater than expected number");
+															}
+															else {
+																String expectedType = funcSymTable.get(currentFunction).getAnArgumentType(argCounter);
+																String identifierType = l.getClass().getTypeName().substring(10).toUpperCase();
+																if(expectedType.equals(identifierType)) {
+																	System.out.println("Argument type is okay");
+																}
+																else {
+																	System.out.println("function call argument was not that expected");
+																	System.out.println("argument " + l + " type is " + identifierType);
+																	System.out.println("expected type is " + expectedType);
+																}
+																argCounter++;
+															}
+														:}
+			;
+local_section	::= LOCAL variables_declaration
+			|	LOCAL error {: report_error("local section error"); :}
+			;
+variables_declaration	::= variable_declaration
+			|	variables_declaration variable_declaration
+			;
+variable_declaration	::= IDENTIFIER:i COLON data_type:dt {:
+								if (!variableExist(i)){
+									varSymTable.add(new VariableTypeChecker(i, dt.toString()));
+									System.out.println("This variable name is " + i + " and it's type is " + dt.toString());
+								}
+								else {
+									System.out.println("This variable name already exist");
+								}
+								System.out.println("Variable declaration -> " + i);
+							:}
+			;
+loop_section	::= FROM variables_initialization UNTIL statement LOOP code_section END
+			|		FROM variables_initialization UNTIL statement LOOP				END
+			|		FROM error {: report_error("loop section error"); :}
+			;
+variables_initialization	::= variable_initialization
+			|	variables_initialization variable_initialization
+			;
+variable_initialization	::= IDENTIFIER:i COLEQ computation:c {:
+								String variableType = getVariableType(i);
+								if(variableType.equals("NotFound")){
+									System.out.println("This variable not declread yet!");
+								}
+								else {
+									System.out.println("Variable " + i + " found and it's origin type is : " + variableType);
+									System.out.println("Computation type is : " + c.toString());
+									if(c.toString().equals(variableType)){
+										System.out.println("variable initialization is okay!");
+									}
+									else {
+										System.out.println("variable initialization was failed! cause of the diffrence between types");
+									}
+								}
+								System.out.println("Variable initialization -> " + i);
+							:}
+			|	IDENTIFIER error  {: report_error("variable initialization error"); :}
+			;
+computation		::=	operand:op1 PLUS operand:op2	{:
+														String operand1Type = op1.toString();
+														String operand2Type = op2.toString();
+														if(operand1Type.equals(operand2Type)){
+															RESULT = operand1Type ;
+														}
+														else {
+															System.out.println("The type of operands must be the same (in Plus)");
+														}
+													:}
+			|	operand:op1 MINUS operand:op2		{:
+														String operand1Type = op1.toString();
+														String operand2Type = op2.toString();
+														if(operand1Type.equals(operand2Type)){
+															RESULT = operand1Type ;
+														}
+														else {
+															System.out.println("The type of operands must be the same (in Minus)");
+														}
+													:}
+			|	operand:op1 DIV operand:op2			{:
+														String operand1Type = op1.toString();
+														String operand2Type = op2.toString();
+														if(operand1Type.equals(operand2Type)){
+															RESULT = operand1Type ;
+														}
+														else {
+															System.out.println("The type of operands must be the same (in Div)");
+														}
+													:}
+			|	operand:op1 MULT operand:op2		{:
+														String operand1Type = op1.toString();
+														String operand2Type = op2.toString();
+														if(operand1Type.equals(operand2Type)){
+															RESULT = operand1Type ;
+														}
+														else {
+															System.out.println("The type of operands must be the same (in Mult)");
+														}
+													:}
+			|	MINUS operand:op					{:
+														String operandType = op.toString();
+														if(!operandType.equals("STRING")){
+															RESULT = op;
+														}
+														else {
+															System.out.println("You can not Minus a String!");
+														}
+													:}
+			| 	operand:op							{:
+														RESULT = op;
+													:}
+			;
+operand			::= literal:l		{: RESULT=l.getClass().getTypeName().substring(10).toUpperCase(); :}
+			 | IDENTIFIER:e			{:
+										String variableType = getVariableType(e);
+										if(variableType.equals("NotFound")){
+											System.out.println("This variable (used as operand) not declread yet!");
+										}
+										else {
+											System.out.println("Variable found (used as operand) and it's origin type is : " + variableType);
+											RESULT=variableType;
+										}
+									:}
+			;
+code_section	::= code_section_in
+			| code_section_in code_section
+			;
+code_section_in	::= condition
+			| print_function
+			| variable_initialization
+			| loop_section
+			| function_call
+			;

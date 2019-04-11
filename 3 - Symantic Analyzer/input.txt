@@ -1,0 +1,37 @@
+class
+    APPLICATION
+
+create
+    make
+
+feature
+	calculateFunction (a : INTEGER; b : INTEGER)
+        local
+            i : INTEGER
+        do
+            from
+                i := 0
+            until
+                i >= a
+            loop
+                if a<b
+				then
+                    print ("Hello World!%N")
+                else
+                    print ("Bye%N")
+                end
+                i := i + 1
+            end
+        end
+    make
+        local
+            x : INTEGER
+            y : INTEGER
+            z : STRING
+        do
+            x := 5
+            y := 10
+            z := "parsa"
+            calculateFunction(x , y)
+        end
+end
